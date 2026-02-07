@@ -3,8 +3,8 @@ module.exports = async(req, res) = >
 {
 	res.setHeader('Access-Control-Allow-Origin', '*');
 	const code = req.query.code;
-	const sourceFile = process.cwd() + '/codes.txt';
-	const packetFile = '/tmp/game.dat';
+	const sourceFile = path.join(__dirname, '../codes.txt');
+    const packetFile = path.join(__dirname, '../game.dat');
 	let data = '';
 	if (fs.existsSync(packetFile))
 		data = fs.readFileSync(packetFile, 'utf8');
