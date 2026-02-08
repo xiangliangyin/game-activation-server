@@ -1,0 +1,8 @@
+{
+  "name": "activation-api",
+  "version": "1.0.0",
+  "type": "commonjs",
+  "dependencies": {
+    "@neondatabase/serverless": "^0.9.0"
+  }
+}
