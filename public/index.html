@@ -492,25 +492,25 @@
         // 更新仪表板
         function updateDashboard(data) {
             // 更新基本信息
-            document.getElementById('total-codes').textContent = formatNumber(data.status.total);
-            document.getElementById('used-codes').textContent = formatNumber(data.status.used);
-            document.getElementById('available-codes').textContent = formatNumber(data.status.available);
-            document.getElementById('unique-users').textContent = formatNumber(data.status.unique_users);
-            document.getElementById('available-rate').textContent = data.status.usage_rate;
+            document.getElementById('total-codes').textContent = formatNumber(data.stats.total);
+            document.getElementById('used-codes').textContent = formatNumber(data.stats.used);
+            document.getElementById('available-codes').textContent = formatNumber(data.stats.available);
+            document.getElementById('unique-users').textContent = formatNumber(data.stats.unique_users);
+            document.getElementById('available-rate').textContent = data.stats.usage_rate;
             
             // 更新今日统计
             document.getElementById('today-used').innerHTML = `
                 <i class="fas fa-arrow-up"></i>
-                <span>今日: ${formatNumber(data.status.today_used)}</span>
+                <span>今日: ${formatNumber(data.stats.today_used)}</span>
             `;
             
             document.getElementById('today-users').innerHTML = `
                 <i class="fas fa-user-plus"></i>
-                <span>今日活跃: ${formatNumber(data.status.today_users)}</span>
+                <span>今日活跃: ${formatNumber(data.stats.today_users)}</span>
             `;
             
             // 更新进度条
-            const usageRate = parseFloat(data.status.usage_rate) || 0;
+            const usageRate = parseFloat(data.stats.usage_rate) || 0;
             document.getElementById('usage-progress').style.width = usageRate + '%';
             
             // 更新最近激活记录
