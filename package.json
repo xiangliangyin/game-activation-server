@@ -5,7 +5,9 @@
   "scripts": {
     "dev": "vercel dev",
     "deploy": "vercel --prod",
-    "import": "node scripts/import-codes.js"
+    "import": "node scripts/import-codes.js",
+    "build:ui": "echo 'UI文件已经准备好'",
+    "start": "vercel dev"
   },
   "dependencies": {
     "@neondatabase/serverless": "^0.9.0"
