@@ -1,26 +1,25 @@
-const { Pool } = require('@neondatabase/serverless');
-
-// 使用连接池
-const pool = new Pool({
-    connectionString: process.env.DATABASE_URL,
-    max: 5,
-});
+// /api/status.js - 系统状态统计接口
+const pool = require('../lib/db');
 
 module.exports = async (req, res) => {
-    // 设置CORS
+    // 设置 CORS
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
-    res.setHeader('Content-Type', 'application/json');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
     
     // 处理预检请求
     if (req.method === 'OPTIONS') {
         return res.status(200).end();
     }
     
-    // 只允许GET请求
+    // 只允许 GET 请求
     if (req.method !== 'GET') {
-        return res.status(405).json({ error: '只支持GET请求' });
+        return res.status(405).json({ 
+            error: '只支持 GET 请求' 
+        });
     }
+    
+    console.log(`[${new Date().toISOString()}] 状态统计请求: ${req.url}`);
     
     const client = await pool.connect();
     
@@ -53,15 +52,14 @@ module.exports = async (req, res) => {
             SELECT 
                 code, 
                 used_by, 
-                used_at,
-                EXTRACT(HOUR FROM used_at) as hour
+                used_at
             FROM activation_codes 
             WHERE used_at IS NOT NULL 
             ORDER BY used_at DESC 
             LIMIT 10
         `);
         
-        // 4. 获取使用最多的用户
+        // 4. 获取热门用户
         const topUsersResult = await client.query(`
             SELECT 
                 used_by,
@@ -81,8 +79,7 @@ module.exports = async (req, res) => {
                 service: 'activation-api',
                 version: '2.0.0',
                 environment: process.env.NODE_ENV || 'production',
-                timestamp: new Date().toISOString(),
-                uptime: process.uptime()
+                timestamp: new Date().toISOString()
             },
             stats: {
                 // 总数统计
@@ -108,7 +105,7 @@ module.exports = async (req, res) => {
                 code: row.code,
                 used_by: row.used_by || '匿名用户',
                 used_at: row.used_at,
-                time: row.used_at ? new Date(row.used_at).toLocaleTimeString() : null
+                time: row.used_at ? new Date(row.used_at).toLocaleString() : null
             })),
             top_users: topUsersResult.rows.map(row => ({
                 user: row.used_by,
@@ -121,10 +118,11 @@ module.exports = async (req, res) => {
             }
         };
         
+        console.log('✅ 状态统计成功');
         res.status(200).json(response);
         
     } catch (error) {
-        console.error('统计API错误:', error);
+        console.error('状态统计错误:', error);
         
         res.status(500).json({
             ok: false,
