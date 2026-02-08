@@ -5,6 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>激活码管理系统 - 仪表板</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- 防止缓存 -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <style>
         * {
             margin: 0;
@@ -433,7 +437,7 @@
         <div class="api-test">
             <h3><i class="fas fa-vial"></i> API 测试</h3>
             <div class="test-form">
-                <input type="text" id="test-code" placeholder="输入20位激活码进行测试 (例如: ABCDE12345FGHIJ67890)">
+                <input type="text" id="test-code" placeholder="输入20位激活码进行测试 (例如: abcde12345fghij67890)">
                 <button onclick="testActivation()">测试激活</button>
             </div>
             <div class="result" id="test-result">
@@ -448,6 +452,37 @@
     </div>
     
     <script>
+        // ==================== 自动检测 API 地址 ====================
+        function getApiBase() {
+            const currentUrl = window.location.href;
+            
+            // 如果是直接打开本地文件 (file://)
+            if (window.location.protocol === 'file:') {
+                console.warn('⚠️ 检测到本地文件访问模式');
+                console.warn('建议使用开发服务器: npm run dev');
+                console.warn('然后访问: http://localhost:3000');
+                return 'http://localhost:3000';
+            }
+            
+            // 如果是 localhost 开发环境
+            if (window.location.hostname === 'localhost' || 
+                window.location.hostname === '127.0.0.1') {
+                console.log('🌱 本地开发环境');
+                return 'http://' + window.location.host;
+            }
+            
+            // 生产环境（Vercel 或其他部署）
+            console.log('🚀 生产环境');
+            return window.location.origin;
+        }
+
+        // 全局 API 基础地址
+        const API_BASE = getApiBase();
+        console.log('🌐 API 基础地址:', API_BASE);
+        console.log('📱 当前页面地址:', window.location.href);
+
+        // ==================== 原有代码 ====================
+        
         // 全局状态
         let lastStats = null;
         let autoRefresh = true;
@@ -475,7 +510,8 @@
                     el.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
                 });
                 
-                const response = await fetch('/api/status');
+                // 🔧 修复：使用动态 API 地址
+                const response = await fetch(`${API_BASE}/api/status`);
                 const data = await response.json();
                 
                 if (data.ok) {
@@ -486,6 +522,7 @@
                 }
             } catch (error) {
                 showError('无法连接到服务器: ' + error.message);
+                console.error('加载统计信息错误:', error);
             }
         }
         
@@ -619,7 +656,8 @@
             resultDiv.innerHTML = `<span class="loading"><i class="fas fa-spinner fa-spin"></i> 正在验证激活码...</span>`;
             
             try {
-                const response = await fetch(`/api/activate?code=${encodeURIComponent(code)}`);
+                // 🔧 修复：使用动态 API 地址
+                const response = await fetch(`${API_BASE}/api/activate?code=${encodeURIComponent(code)}`);
                 const data = await response.json();
                 
                 if (data.ok) {
@@ -648,6 +686,7 @@
                 }
             } catch (error) {
                 resultDiv.innerHTML = `<span class="error">❌ 测试失败: ${error.message}</span>`;
+                console.error('激活测试错误:', error);
             }
         }
         
