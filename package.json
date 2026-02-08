@@ -10,10 +10,10 @@
     "status": "curl https://your-project.vercel.app/api/status"
   },
   "dependencies": {
-    "@vercel/postgres": "^0.7.0"
+    "@neondatabase/serverless": "^0.9.0"  // 替换 @vercel/postgres
   },
   "devDependencies": {
-    "vercel": "^28.0.0"
+    "vercel": "^32.0.0"  // 更新到最新版本
   },
   "engines": {
     "node": ">=18.x"
