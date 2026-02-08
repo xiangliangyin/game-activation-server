@@ -1,35 +1,50 @@
-// api/health.js
-const { neon } = require('@neondatabase/serverless');
+const { Pool } = require('@neondatabase/serverless');
+
+const pool = new Pool({
+    connectionString: process.env.DATABASE_URL,
+    max: 2,
+});
 
 module.exports = async (req, res) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
     
     const health = {
-        status: 'ok',
+        status: 'checking',
         timestamp: new Date().toISOString(),
         service: 'activation-api',
-        version: '1.0.0'
+        version: '2.0.0-pool'
     };
     
-    // 测试数据库连接
+    const client = await pool.connect();
+    
     try {
-        const sql = neon(process.env.DATABASE_URL);
-        const client = await sql();
+        // 测试数据库
+        const dbResult = await client.query('SELECT 1 as test, version() as version');
         
-        // 简单查询测试数据库
-        const dbResult = await client.query('SELECT 1 as test');
-        await client.end();
+        health.status = 'healthy';
+        health.database = {
+            connected: true,
+            neon: true,
+            test: dbResult.rows[0].test === 1,
+            version: dbResult.rows[0].version,
+            pool_status: {
+                total: pool.totalCount,
+                idle: pool.idleCount,
+                waiting: pool.waitingCount
+            }
+        };
         
-        health.database = 'connected';
-        health.database_test = dbResult.rows[0].test === 1;
+        res.status(200).json(health);
         
     } catch (error) {
-        health.database = 'error';
-        health.database_error = error.message;
-        health.status = 'degraded';
+        health.status = 'unhealthy';
+        health.database = {
+            connected: false,
+            error: error.message
+        };
+        
+        res.status(503).json(health);
+    } finally {
+        client.release();
     }
-    
-    // 返回健康状态
-    const statusCode = health.status === 'ok' ? 200 : 503;
-    res.status(statusCode).json(health);
 };
