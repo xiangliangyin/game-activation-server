@@ -1,0 +1,21 @@
+{
+  "name": "activation-code-api",
+  "version": "1.0.0",
+  "description": "高性能激活码验证系统",
+  "main": "api/activate.js",
+  "scripts": {
+    "dev": "vercel dev",
+    "deploy": "vercel --prod",
+    "import": "node import-codes.js",
+    "status": "curl https://your-project.vercel.app/api/status"
+  },
+  "dependencies": {
+    "@vercel/postgres": "^0.7.0"
+  },
+  "devDependencies": {
+    "vercel": "^28.0.0"
+  },
+  "engines": {
+    "node": ">=18.x"
+  }
+}
