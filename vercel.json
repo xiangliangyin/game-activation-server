@@ -1,14 +1,8 @@
 {
   "version": 2,
-  "name": "activation-api",
-  "public": false,
   "builds": [
     {
       "src": "api/*.js",
-      "use": "@vercel/node"
-    },
-    {
-      "src": "server.js",
       "use": "@vercel/node"
     }
   ],
@@ -24,29 +18,22 @@
     },
     {
       "src": "/",
-      "dest": "/server.js"
+      "dest": "/api/health",
+      "status": 301
     },
     {
       "src": "/health",
-      "dest": "/server.js"
+      "dest": "/api/health"
+    },
+    {
+      "src": "/status",
+      "dest": "/api/status"
     }
   ],
-  "env": {
-    "NODE_VERSION": "18"
-  },
   "functions": {
     "api/*.js": {
       "maxDuration": 10,
       "memory": 1024
     }
-  },
-  "checks": {
-    "api-health": {
-      "path": "/api/status",
-      "method": "GET",
-      "schedule": "0 */6 * * *",
-      "timeout": 10000
-    }
-  },
-  "regions": ["iad1"]
+  }
 }
