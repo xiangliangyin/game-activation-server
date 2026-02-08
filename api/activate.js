@@ -1,41 +1,39 @@
-// api/activate-pool.js - 连接池版本（高性能）
-import { Pool } from '@neondatabase/serverless';
+// api/activate.js
+const { neon } = require('@neondatabase/serverless');
 
-// 创建连接池
-const pool = new Pool({
-    connectionString: process.env.DATABASE_URL || process.env.POSTGRES_URL,
-    max: 20, // 最大连接数
-    idleTimeoutMillis: 30000,
-    connectionTimeoutMillis: 5000,
-});
-
-export default async function handler(req, res) {
+module.exports = async (req, res) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
-    const code = req.query.code;
     
+    const code = req.query.code;
     if (!code || code.length !== 20) {
-        return res.json({
-            ok: false,
-            error: '激活码无效'
-        });
+        return res.json({ ok: false, error: '激活码无效' });
     }
     
-    const client = await pool.connect();
+    // 可选：获取使用者信息
+    const usedBy = req.headers['x-user-id'] || 
+                   req.query.user_id || 
+                   'anonymous';
     
     try {
+        const sql = neon(process.env.DATABASE_URL);
+        const client = await sql();
+        
         await client.query('BEGIN');
         
+        // 更新时设置 used_by
         const result = await client.query(
             `UPDATE activation_codes 
              SET is_used = TRUE, 
-                 used_at = CURRENT_TIMESTAMP
+                 used_at = CURRENT_TIMESTAMP,
+                 used_by = $2
              WHERE code = $1 
                AND is_used = FALSE
              RETURNING code`,
-            [code]
+            [code, usedBy]  // 第二个参数是 used_by
         );
         
         await client.query('COMMIT');
+        await client.end();
         
         if (result.rows.length === 0) {
             const checkResult = await client.query(
@@ -44,28 +42,18 @@ export default async function handler(req, res) {
             );
             
             if (checkResult.rows.length > 0) {
-                return res.json({
-                    ok: false,
-                    error: '激活码已使用'
-                });
+                return res.json({ ok: false, error: '激活码已使用' });
             }
-            
-            return res.json({
-                ok: false,
-                error: '激活码无效'
-            });
+            return res.json({ ok: false, error: '激活码无效' });
         }
         
         return res.json({ ok: true });
         
     } catch (error) {
-        await client.query('ROLLBACK');
         console.error('数据库错误:', error);
-        return res.status(500).json({
-            ok: false,
-            error: '服务器内部错误'
+        return res.status(500).json({ 
+            ok: false, 
+            error: '服务器内部错误' 
         });
-    } finally {
-        client.release();
     }
-}
+};
