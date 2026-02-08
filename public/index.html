@@ -475,7 +475,7 @@
                     el.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
                 });
                 
-                const response = await fetch('/api/stats');
+                const response = await fetch('/api/status');
                 const data = await response.json();
                 
                 if (data.ok) {
