@@ -5,6 +5,7 @@
     "dev": "vercel dev",
     "deploy": "vercel --prod",
     "import": "node import-codes.js",
+    "verify": "node scripts/verify.js",
     "build": "node import-codes.js"
   },
   "dependencies": {
