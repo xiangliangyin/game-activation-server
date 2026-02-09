@@ -3,730 +3,144 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>激活码管理系统 - 仪表板</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- 防止缓存 -->
-    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-    <meta http-equiv="Pragma" content="no-cache">
-    <meta http-equiv="Expires" content="0">
+    <title>激活码系统</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: #333;
-            min-height: 100vh;
-            padding: 20px;
-        }
-        
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-        }
-        
-        header {
-            text-align: center;
-            margin-bottom: 40px;
-            padding: 30px;
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-        }
-        
-        header h1 {
-            color: white;
-            font-size: 2.8rem;
-            margin-bottom: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 15px;
-        }
-        
-        header p {
-            color: rgba(255, 255, 255, 0.9);
-            font-size: 1.2rem;
-            max-width: 800px;
-            margin: 0 auto;
-            line-height: 1.6;
-        }
-        
-        .status-badge {
-            display: inline-block;
-            padding: 8px 20px;
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 50px;
-            margin-top: 15px;
-            font-size: 0.9rem;
-            color: white;
-        }
-        
-        .dashboard {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 25px;
-            margin-bottom: 40px;
-        }
-        
-        .card {
-            background: white;
-            border-radius: 15px;
-            padding: 30px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-            transition: transform 0.3s ease;
-        }
-        
-        .card:hover {
-            transform: translateY(-5px);
-        }
-        
-        .card-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 25px;
-        }
-        
-        .card-title {
-            font-size: 1.4rem;
-            color: #2d3748;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .card-icon {
-            font-size: 1.8rem;
-            color: #667eea;
-        }
-        
-        .stat-number {
-            font-size: 3.5rem;
-            font-weight: 700;
-            color: #4a5568;
-            margin-bottom: 10px;
-        }
-        
-        .stat-label {
-            color: #718096;
-            font-size: 1.1rem;
-            margin-bottom: 15px;
-        }
-        
-        .stat-change {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            color: #48bb78;
-            font-weight: 600;
-        }
-        
-        .stat-change.down {
-            color: #f56565;
-        }
-        
-        .progress-bar {
-            height: 10px;
-            background: #e2e8f0;
-            border-radius: 5px;
-            overflow: hidden;
-            margin-top: 20px;
-        }
-        
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #667eea, #764ba2);
-            border-radius: 5px;
-            transition: width 1s ease;
-        }
-        
-        .recent-activations {
-            grid-column: span 2;
-        }
-        
-        .table-container {
-            overflow-x: auto;
-        }
-        
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        
-        th {
-            text-align: left;
-            padding: 15px;
-            background: #f7fafc;
-            color: #4a5568;
-            font-weight: 600;
-            border-bottom: 2px solid #e2e8f0;
-        }
-        
-        td {
-            padding: 15px;
-            border-bottom: 1px solid #e2e8f0;
-        }
-        
-        tr:hover {
-            background: #f7fafc;
-        }
-        
-        .code-cell {
-            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-            font-size: 0.9rem;
-            color: #2d3748;
-        }
-        
-        .user-badge {
-            display: inline-block;
-            padding: 5px 12px;
-            background: #ebf4ff;
-            color: #667eea;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            font-weight: 500;
-        }
-        
-        .time-cell {
-            color: #718096;
-            font-size: 0.9rem;
-        }
-        
-        .api-test {
-            background: #f7fafc;
-            border-radius: 15px;
-            padding: 30px;
-            margin-top: 40px;
-        }
-        
-        .api-test h3 {
-            margin-bottom: 20px;
-            color: #2d3748;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .test-form {
-            display: flex;
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-        
-        input[type="text"] {
-            flex: 1;
-            padding: 15px;
-            border: 2px solid #e2e8f0;
-            border-radius: 10px;
-            font-size: 1rem;
-            transition: border-color 0.3s ease;
-        }
-        
-        input[type="text"]:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-        
-        button {
-            padding: 15px 30px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            border-radius: 10px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: transform 0.2s ease;
-        }
-        
-        button:hover {
-            transform: scale(1.05);
-        }
-        
-        .result {
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            margin-top: 20px;
-            font-family: 'Monaco', 'Menlo', monospace;
-            font-size: 0.9rem;
-            overflow-x: auto;
-            white-space: pre-wrap;
-        }
-        
-        .success { color: #48bb78; }
-        .error { color: #f56565; }
-        .loading { color: #718096; }
-        
-        footer {
-            text-align: center;
-            margin-top: 50px;
-            color: rgba(255, 255, 255, 0.8);
-            padding: 20px;
-        }
-        
-        .refresh-btn {
-            background: rgba(255, 255, 255, 0.2);
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 10px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-left: auto;
-        }
-        
-        @media (max-width: 768px) {
-            .dashboard {
-                grid-template-columns: 1fr;
-            }
-            
-            .recent-activations {
-                grid-column: span 1;
-            }
-            
-            header h1 {
-                font-size: 2rem;
-            }
-            
-            .stat-number {
-                font-size: 2.5rem;
-            }
-        }
+        body { font-family: Arial; max-width: 800px; margin: 0 auto; padding: 20px; }
+        .card { background: #f5f5f5; padding: 20px; border-radius: 10px; margin: 20px 0; }
+        input[type="text"] { width: 300px; padding: 10px; font-size: 16px; margin-right: 10px; }
+        button { padding: 10px 20px; background: #0070f3; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        button:hover { background: #0051bb; }
+        .success { color: green; }
+        .error { color: red; }
+        pre { background: #eee; padding: 10px; border-radius: 5px; overflow: auto; }
     </style>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>
-                <i class="fas fa-key"></i>
-                激活码管理系统
-            </h1>
-            <p>实时监控激活码使用情况，支持百万级数据和高并发验证</p>
-            <div class="status-badge">
-                <span id="system-status">正在连接服务器...</span>
-                <span id="last-update"></span>
-            </div>
-        </header>
-        
-        <div class="dashboard">
-            <!-- 总激活码卡片 -->
-            <div class="card">
-                <div class="card-header">
-                    <div class="card-title">
-                        <i class="fas fa-database card-icon"></i>
-                        总激活码
-                    </div>
-                </div>
-                <div class="stat-number" id="total-codes">0</div>
-                <div class="stat-label">数据库中的激活码总数</div>
-                <div class="progress-bar">
-                    <div class="progress-fill" id="usage-progress" style="width: 0%"></div>
-                </div>
-            </div>
-            
-            <!-- 已使用卡片 -->
-            <div class="card">
-                <div class="card-header">
-                    <div class="card-title">
-                        <i class="fas fa-check-circle card-icon"></i>
-                        已使用
-                    </div>
-                </div>
-                <div class="stat-number" id="used-codes">0</div>
-                <div class="stat-label">已成功激活的数量</div>
-                <div class="stat-change" id="today-used">
-                    <i class="fas fa-arrow-up"></i>
-                    <span>今日: 0</span>
-                </div>
-            </div>
-            
-            <!-- 可用卡片 -->
-            <div class="card">
-                <div class="card-header">
-                    <div class="card-title">
-                        <i class="fas fa-unlock card-icon"></i>
-                        可用
-                    </div>
-                </div>
-                <div class="stat-number" id="available-codes">0</div>
-                <div class="stat-label">等待激活的数量</div>
-                <div class="stat-change">
-                    <i class="fas fa-percentage"></i>
-                    <span>可用率: <span id="available-rate">0%</span></span>
-                </div>
-            </div>
-            
-            <!-- 用户统计卡片 -->
-            <div class="card">
-                <div class="card-header">
-                    <div class="card-title">
-                        <i class="fas fa-users card-icon"></i>
-                        用户统计
-                    </div>
-                </div>
-                <div class="stat-number" id="unique-users">0</div>
-                <div class="stat-label">独立用户数量</div>
-                <div class="stat-change" id="today-users">
-                    <i class="fas fa-user-plus"></i>
-                    <span>今日活跃: 0</span>
-                </div>
-            </div>
-            
-            <!-- 最近激活记录 -->
-            <div class="card recent-activations">
-                <div class="card-header">
-                    <div class="card-title">
-                        <i class="fas fa-history card-icon"></i>
-                        最近激活记录
-                    </div>
-                    <button class="refresh-btn" onclick="loadStats()">
-                        <i class="fas fa-sync-alt"></i>
-                        刷新
-                    </button>
-                </div>
-                <div class="table-container">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>激活码</th>
-                                <th>使用者</th>
-                                <th>激活时间</th>
-                            </tr>
-                        </thead>
-                        <tbody id="recent-activations">
-                            <tr>
-                                <td colspan="3" style="text-align: center; padding: 40px;">
-                                    <div style="color: #718096;">
-                                        <i class="fas fa-spinner fa-spin"></i>
-                                        正在加载数据...
-                                    </div>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-            
-            <!-- 热门用户 -->
-            <div class="card">
-                <div class="card-header">
-                    <div class="card-title">
-                        <i class="fas fa-crown card-icon"></i>
-                        热门用户
-                    </div>
-                </div>
-                <div id="top-users">
-                    <div style="color: #718096; padding: 20px; text-align: center;">
-                        <i class="fas fa-spinner fa-spin"></i>
-                        正在加载...
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- API 测试区域 -->
-        <div class="api-test">
-            <h3><i class="fas fa-vial"></i> API 测试</h3>
-            <div class="test-form">
-                <input type="text" id="test-code" placeholder="输入20位激活码进行测试 (例如: abcde12345fghij67890)">
-                <button onclick="testActivation()">测试激活</button>
-            </div>
-            <div class="result" id="test-result">
-                测试结果将显示在这里...
-            </div>
-        </div>
-        
-        <footer>
-            <p>系统版本: v2.0.0 | 最后更新: <span id="footer-timestamp"></span></p>
-            <p>Powered by Vercel + Neon PostgreSQL</p>
-        </footer>
+    <h1>🔑 激活码系统</h1>
+    
+    <div class="card">
+        <h3>系统状态</h3>
+        <div id="systemStatus">检查中...</div>
+        <button onclick="checkSystem()">刷新状态</button>
+    </div>
+    
+    <div class="card">
+        <h3>激活测试</h3>
+        <input type="text" id="codeInput" placeholder="输入20位激活码">
+        <button onclick="activateCode()">测试激活</button>
+        <div id="activateResult" style="margin-top: 10px;"></div>
+    </div>
+    
+    <div class="card">
+        <h3>API测试</h3>
+        <button onclick="testAPI()">测试所有API</button>
+        <pre id="apiResult"></pre>
     </div>
     
     <script>
-        // ==================== 自动检测 API 地址 ====================
-        function getApiBase() {
-            const currentUrl = window.location.href;
-            
-            // 如果是直接打开本地文件 (file://)
-            if (window.location.protocol === 'file:') {
-                console.warn('⚠️ 检测到本地文件访问模式');
-                console.warn('建议使用开发服务器: npm run dev');
-                console.warn('然后访问: http://localhost:3000');
-                return 'http://localhost:3000';
-            }
-            
-            // 如果是 localhost 开发环境
-            if (window.location.hostname === 'localhost' || 
-                window.location.hostname === '127.0.0.1') {
-                console.log('🌱 本地开发环境');
-                return 'http://' + window.location.host;
-            }
-            
-            // 生产环境（Vercel 或其他部署）
-            console.log('🚀 生产环境');
-            return window.location.origin;
-        }
-
-        // 全局 API 基础地址
-        const API_BASE = getApiBase();
-        console.log('🌐 API 基础地址:', API_BASE);
-        console.log('📱 当前页面地址:', window.location.href);
-
-        // ==================== 原有代码 ====================
+        // 自动获取当前域名
+        const API_BASE = window.location.origin;
+        console.log('API地址:', API_BASE);
         
-        // 全局状态
-        let lastStats = null;
-        let autoRefresh = true;
-        
-        // 页面加载时获取数据
+        // 页面加载时检查
         document.addEventListener('DOMContentLoaded', function() {
-            loadStats();
-            
-            // 每30秒自动刷新
-            setInterval(() => {
-                if (autoRefresh) {
-                    loadStats();
-                }
-            }, 30000);
-            
-            // 更新时间显示
-            updateTime();
-            setInterval(updateTime, 1000);
+            checkSystem();
         });
         
-        // 加载统计信息
-        async function loadStats() {
+        // 检查系统状态
+        async function checkSystem() {
+            document.getElementById('systemStatus').innerHTML = '检查中...';
+            
             try {
-                document.querySelectorAll('.stat-number').forEach(el => {
-                    el.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
-                });
-                
-                // 🔧 修复：使用动态 API 地址
-                const response = await fetch(`${API_BASE}/api/status`);
+                const response = await fetch(API_BASE + '/api/status');
                 const data = await response.json();
                 
                 if (data.ok) {
-                    updateDashboard(data);
-                    lastStats = data;
+                    document.getElementById('systemStatus').innerHTML = `
+                        ✅ 系统正常<br>
+                        总激活码: ${data.stats.total.toLocaleString()}<br>
+                        已使用: ${data.stats.used.toLocaleString()}<br>
+                        可用: ${data.stats.available.toLocaleString()}
+                    `;
                 } else {
-                    showError('获取统计信息失败: ' + (data.error || '未知错误'));
+                    document.getElementById('systemStatus').innerHTML = '❌ 系统异常';
                 }
             } catch (error) {
-                showError('无法连接到服务器: ' + error.message);
-                console.error('加载统计信息错误:', error);
+                document.getElementById('systemStatus').innerHTML = `❌ 连接失败: ${error.message}`;
             }
         }
         
-        // 更新仪表板
-        function updateDashboard(data) {
-            // 更新基本信息
-            document.getElementById('total-codes').textContent = formatNumber(data.stats.total);
-            document.getElementById('used-codes').textContent = formatNumber(data.stats.used);
-            document.getElementById('available-codes').textContent = formatNumber(data.stats.available);
-            document.getElementById('unique-users').textContent = formatNumber(data.stats.unique_users);
-            document.getElementById('available-rate').textContent = data.stats.usage_rate;
-            
-            // 更新今日统计
-            document.getElementById('today-used').innerHTML = `
-                <i class="fas fa-arrow-up"></i>
-                <span>今日: ${formatNumber(data.stats.today_used)}</span>
-            `;
-            
-            document.getElementById('today-users').innerHTML = `
-                <i class="fas fa-user-plus"></i>
-                <span>今日活跃: ${formatNumber(data.stats.today_users)}</span>
-            `;
-            
-            // 更新进度条
-            const usageRate = parseFloat(data.stats.usage_rate) || 0;
-            document.getElementById('usage-progress').style.width = usageRate + '%';
-            
-            // 更新最近激活记录
-            updateRecentActivations(data.recent_activations);
-            
-            // 更新热门用户
-            updateTopUsers(data.top_users);
-            
-            // 更新系统状态
-            document.getElementById('system-status').innerHTML = `
-                <i class="fas fa-check-circle" style="color: #48bb78;"></i>
-                系统运行正常
-            `;
-            
-            document.getElementById('last-update').textContent = ` | 更新: ${new Date().toLocaleTimeString()}`;
-            
-            // 更新页脚时间戳
-            document.getElementById('footer-timestamp').textContent = new Date(data.system.timestamp).toLocaleString();
-        }
-        
-        // 更新最近激活记录
-        function updateRecentActivations(activations) {
-            const tbody = document.getElementById('recent-activations');
-            
-            if (!activations || activations.length === 0) {
-                tbody.innerHTML = `
-                    <tr>
-                        <td colspan="3" style="text-align: center; padding: 40px;">
-                            <div style="color: #718096;">
-                                <i class="fas fa-inbox"></i>
-                                暂无激活记录
-                            </div>
-                        </td>
-                    </tr>
-                `;
-                return;
-            }
-            
-            let html = '';
-            activations.forEach(activation => {
-                const time = activation.used_at ? new Date(activation.used_at).toLocaleString() : '未知时间';
-                html += `
-                    <tr>
-                        <td class="code-cell">${activation.code}</td>
-                        <td><span class="user-badge">${activation.used_by}</span></td>
-                        <td class="time-cell">${time}</td>
-                    </tr>
-                `;
-            });
-            
-            tbody.innerHTML = html;
-        }
-        
-        // 更新热门用户
-        function updateTopUsers(users) {
-            const container = document.getElementById('top-users');
-            
-            if (!users || users.length === 0) {
-                container.innerHTML = `
-                    <div style="color: #718096; padding: 20px; text-align: center;">
-                        <i class="fas fa-user-slash"></i>
-                        暂无用户数据
-                    </div>
-                `;
-                return;
-            }
-            
-            let html = '<div style="display: flex; flex-direction: column; gap: 15px;">';
-            users.forEach((user, index) => {
-                const rankColors = ['#FFD700', '#C0C0C0', '#CD7F32', '#667eea', '#764ba2'];
-                const rankColor = rankColors[index] || '#718096';
-                
-                html += `
-                    <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px; background: #f7fafc; border-radius: 10px;">
-                        <div style="display: flex; align-items: center; gap: 12px;">
-                            <div style="width: 30px; height: 30px; background: ${rankColor}; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold;">
-                                ${index + 1}
-                            </div>
-                            <div>
-                                <div style="font-weight: 600; color: #2d3748;">${user.user}</div>
-                                <div style="font-size: 0.85rem; color: #718096;">用户ID</div>
-                            </div>
-                        </div>
-                        <div style="font-weight: 700; color: #4a5568; font-size: 1.2rem;">
-                            ${formatNumber(user.count)} 次
-                        </div>
-                    </div>
-                `;
-            });
-            html += '</div>';
-            
-            container.innerHTML = html;
-        }
-        
-        // 测试激活API
-        async function testActivation() {
-            const codeInput = document.getElementById('test-code');
-            const resultDiv = document.getElementById('test-result');
-            const code = codeInput.value.trim();
+        // 激活测试
+        async function activateCode() {
+            const code = document.getElementById('codeInput').value.trim();
+            const resultDiv = document.getElementById('activateResult');
             
             if (!code || code.length !== 20) {
-                resultDiv.innerHTML = `<span class="error">❌ 请输入有效的20位激活码</span>`;
+                resultDiv.innerHTML = '<span class="error">❌ 请输入20位激活码</span>';
                 return;
             }
             
-            resultDiv.innerHTML = `<span class="loading"><i class="fas fa-spinner fa-spin"></i> 正在验证激活码...</span>`;
+            resultDiv.innerHTML = '验证中...';
             
             try {
-                // 🔧 修复：使用动态 API 地址
-                const response = await fetch(`${API_BASE}/api/activate?code=${encodeURIComponent(code)}`);
+                const response = await fetch(API_BASE + '/api/activate?code=' + encodeURIComponent(code));
                 const data = await response.json();
                 
                 if (data.ok) {
                     resultDiv.innerHTML = `
-                        <span class="success">✅ 激活成功！</span><br><br>
-                        <strong>详细信息：</strong><br>
-                        激活码：${data.code || code}<br>
-                        使用者：${data.used_by || '匿名用户'}<br>
-                        激活时间：${data.used_at || new Date().toISOString()}<br>
-                        响应时间：${data.response_time || 'N/A'}
+                        <span class="success">✅ 激活成功！</span><br>
+                        激活码: ${data.code}<br>
+                        时间: ${new Date(data.used_at).toLocaleString()}
                     `;
-                    
                     // 清空输入框
-                    codeInput.value = '';
-                    
-                    // 刷新统计数据
-                    setTimeout(loadStats, 1000);
+                    document.getElementById('codeInput').value = '';
+                    // 刷新状态
+                    setTimeout(checkSystem, 1000);
                 } else {
-                    resultDiv.innerHTML = `
-                        <span class="error">❌ ${data.error || '激活失败'}</span><br><br>
-                        <strong>详细信息：</strong><br>
-                        错误信息：${data.error}<br>
-                        ${data.used_by ? `原使用者：${data.used_by}<br>` : ''}
-                        ${data.used_at ? `使用时间：${data.used_at}` : ''}
-                    `;
+                    resultDiv.innerHTML = `<span class="error">❌ ${data.error}</span>`;
                 }
             } catch (error) {
-                resultDiv.innerHTML = `<span class="error">❌ 测试失败: ${error.message}</span>`;
-                console.error('激活测试错误:', error);
+                resultDiv.innerHTML = `<span class="error">❌ 网络错误: ${error.message}</span>`;
             }
         }
         
-        // 显示错误
-        function showError(message) {
-            document.getElementById('system-status').innerHTML = `
-                <i class="fas fa-exclamation-triangle" style="color: #f56565;"></i>
-                ${message}
-            `;
+        // 测试API
+        async function testAPI() {
+            const resultDiv = document.getElementById('apiResult');
+            resultDiv.textContent = '测试中...';
             
-            document.querySelectorAll('.stat-number').forEach(el => {
-                if (el.innerHTML.includes('fa-spinner')) {
-                    el.textContent = 'N/A';
+            const endpoints = [
+                { name: '健康检查', url: '/api/health' },
+                { name: '状态', url: '/api/status' },
+                { name: '环境', url: '/api/env' }
+            ];
+            
+            let results = [];
+            
+            for (const endpoint of endpoints) {
+                try {
+                    const response = await fetch(API_BASE + endpoint.url);
+                    const data = await response.json();
+                    results.push({
+                        接口: endpoint.name,
+                        状态: response.status,
+                        数据: data
+                    });
+                } catch (error) {
+                    results.push({
+                        接口: endpoint.name,
+                        错误: error.message
+                    });
                 }
-            });
-        }
-        
-        // 格式化数字（添加千位分隔符）
-        function formatNumber(num) {
-            return Number(num).toLocaleString('zh-CN');
-        }
-        
-        // 更新时间显示
-        function updateTime() {
-            const now = new Date();
-            document.getElementById('last-update').textContent = ` | 更新: ${now.toLocaleTimeString()}`;
-        }
-        
-        // 自动刷新开关
-        function toggleAutoRefresh() {
-            autoRefresh = !autoRefresh;
-            const btn = document.querySelector('.refresh-btn');
-            if (autoRefresh) {
-                btn.innerHTML = '<i class="fas fa-sync-alt"></i> 自动刷新中';
-                btn.style.background = '#48bb78';
-            } else {
-                btn.innerHTML = '<i class="fas fa-pause"></i> 暂停刷新';
-                btn.style.background = '#f56565';
             }
+            
+            resultDiv.textContent = JSON.stringify(results, null, 2);
         }
+        
+        // 导出函数
+        window.checkSystem = checkSystem;
+        window.activateCode = activateCode;
+        window.testAPI = testAPI;
     </script>
 </body>
 </html>
