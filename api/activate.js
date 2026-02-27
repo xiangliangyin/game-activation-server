@@ -1,30 +1,41 @@
 // /api/activate.js - 最终版，只添加心跳
 const pool = require('../lib/db');
+
 // ===== 添加定时心跳（每25分钟执行一次）=====
 const HEARTBEAT_INTERVAL = 25 * 60 * 1000; // 25分钟
+
 function sendHeartbeat() {
     const timestamp = new Date().toISOString();
     console.log(`💓 心跳执行中... ${timestamp}`);
+    
     // 执行一个简单的数据库查询保持连接活跃
     pool.query('SELECT 1')
         .then(() => console.log(`✅ 心跳成功 ${timestamp}`))
         .catch(err => console.error(`❌ 心跳失败: ${err.message}`));
+}
+
 // 5秒后第一次执行，然后每25分钟执行一次
 setTimeout(sendHeartbeat, 5000);
 setInterval(sendHeartbeat, HEARTBEAT_INTERVAL);
+
 console.log(`❤️ 心跳服务已启动，间隔: ${HEARTBEAT_INTERVAL/1000/60}分钟`);
 // ========================================
+
 module.exports = async (req, res) => {
     // CORS 设置
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+    
     if (req.method === 'OPTIONS') {
         return res.status(200).end();
     }
+    
     console.log(`激活请求: ${req.method} ${req.url}`);
+    
     // 获取激活码
     let code, usedBy = 'anonymous';
+    
     if (req.method === 'GET') {
         code = req.query.code;
         usedBy = req.query.user_id || 'anonymous';
@@ -39,27 +50,35 @@ module.exports = async (req, res) => {
     } else {
         return res.status(405).json({ ok: false, error: '只支持GET和POST请求' });
     }
+    
     // 验证激活码
     if (!code || typeof code !== 'string') {
         return res.json({ ok: false, error: '激活码不能为空' });
     }
+    
     code = code.trim().toLowerCase();
+    
     if (code.length !== 20 || !/^[0-9a-z]{20}$/.test(code)) {
         return res.json({ ok: false, error: '激活码格式错误' });
     }
+    
     console.log(`验证激活码: ${code}, 用户: ${usedBy}`);
+    
     try {
         const client = await pool.connect();
+        
         try {
             // 检查激活码是否存在
             const checkResult = await client.query(
                 'SELECT is_used, used_by FROM activation_codes WHERE code = $1',
                 [code]
             );
+            
             if (checkResult.rowCount === 0) {
                 console.log(`激活码不存在: ${code}`);
                 return res.json({ ok: false, error: '激活码无效' });
             }
+            
             if (checkResult.rows[0].is_used) {
                 console.log(`激活码已使用: ${code}, 使用者: ${checkResult.rows[0].used_by}`);
                 return res.json({ 
@@ -68,6 +87,7 @@ module.exports = async (req, res) => {
                     used_by: checkResult.rows[0].used_by
                 });
             }
+            
             // 更新为已使用
             const updateResult = await client.query(
                 `UPDATE activation_codes 
@@ -76,6 +96,7 @@ module.exports = async (req, res) => {
                  RETURNING code, used_at, used_by`,
                 [code, usedBy]
             );
+            
             if (updateResult.rowCount === 1) {
                 console.log(`✅ 激活成功: ${code}`);
                 return res.json({
@@ -86,10 +107,13 @@ module.exports = async (req, res) => {
                     used_at: updateResult.rows[0].used_at
                 });
             }
+            
             return res.json({ ok: false, error: '激活失败，请重试' });
+            
         } finally {
             client.release();
         }
+        
     } catch (error) {
         console.error('数据库错误:', error);
         return res.status(500).json({ 
