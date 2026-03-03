@@ -1,7 +1,7 @@
 // /api/activate.js - 最终版，只添加心跳
 const pool = require('../lib/db');
 
-// ===== 添加定时心跳（每25分钟执行一次）=====
+// ===== 添加定时心跳（每10分钟执行一次）=====
 const HEARTBEAT_INTERVAL = 10 * 60 * 1000; // 10分钟
 
 function sendHeartbeat() {
