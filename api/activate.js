@@ -2,7 +2,7 @@
 const pool = require('../lib/db');
 
 // ===== 添加定时心跳（每25分钟执行一次）=====
-const HEARTBEAT_INTERVAL = 25 * 60 * 1000; // 25分钟
+const HEARTBEAT_INTERVAL = 10 * 60 * 1000; // 10分钟
 
 function sendHeartbeat() {
     const timestamp = new Date().toISOString();
@@ -14,7 +14,7 @@ function sendHeartbeat() {
         .catch(err => console.error(`❌ 心跳失败: ${err.message}`));
 }
 
-// 5秒后第一次执行，然后每25分钟执行一次
+// 5秒后第一次执行，然后每10分钟执行一次
 setTimeout(sendHeartbeat, 5000);
 setInterval(sendHeartbeat, HEARTBEAT_INTERVAL);
 
